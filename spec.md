@@ -19,10 +19,10 @@ This repository contains SQLAchemy models for pypowsybl redy to be used in a dat
 * Network.get_non_linear_shunt_compensator_sections()
 * Network.get_phase_tap_changers()
 * Network.get_ratio_tap_changers()
-* Network.get_phase_tap_changers_steps()
-* Network.get_ratio_tap_changers_steps()
+* Network.get_phase_tap_changer_steps()
+* Network.get_ratio_tap_changer_steps()
 * Network.get_static_var_compensators()
-* Network.get_static_voltage_levels()
+* Network.get_voltage_levels()
 
 ## Suggested workflow
 1. Check our pypowsybl from https://github.com/powsybl/pypowsybl as a submodule
