@@ -13,7 +13,7 @@ The actual runtime dependency is the published `pypowsybl` package from PyPI (re
 - Virtual environment: `.venv/`, managed with `uv` (`uv sync`, `uv run`).
 - Dependencies: `pypowsybl`, `sqlalchemy`, `pandas` as runtime deps; `pytest` as a dev dependency for `03-testing-strategy.md`.
 - Linting: `ruff`, enforced via a pre-commit hook.
-- Type checking: full annotations, enforced via a pre-commit hook (`mypy`, matching what `pypowsybl` itself uses for its own CI, per `requirements.txt`).
+- Type checking: full annotations, enforced via a pre-commit hook using `ty` (per the user's global Python conventions — `pypowsybl` itself uses `mypy` for its own CI, but that's their choice for their codebase, not ours).
 - Testing: `pytest`, against SQLite (`03-testing-strategy.md`) — no external DB server dependency.
 
 ## Repository layout (proposed)
