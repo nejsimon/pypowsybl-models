@@ -1,6 +1,6 @@
-# SQLAhcmey models for power system blocks (pypowsybl)
+# SQLAlchemy models for power system blocks (pypowsybl)
 
-This repository contains SQLAchemy models for pypowsybl redy to be used in a database.
+This repository contains SQLAlchemy models for pypowsybl ready to be used in a database.
 
 ## Target methods:
 * Network.get_buses()
@@ -25,9 +25,9 @@ This repository contains SQLAchemy models for pypowsybl redy to be used in a dat
 * Network.get_voltage_levels()
 
 ## Suggested workflow
-1. Check our pypowsybl from https://github.com/powsybl/pypowsybl as a submodule
+1. Check out pypowsybl from https://github.com/powsybl/pypowsybl as a submodule
 2. Check the Network object defined in the file pypowsybl/network/impl/network.py
-3. Assess the API stability of the methods mentioned. Additions are fine, historical changes and removals should be noted. Check the git history, release tags or just the history.
+3. Assess the API stability of the methods mentioned. Additions are fine, historical changes and removals should be noted. Check the git history or release tags.
 4. Assess relations, i.e. tables relating to each other by id. These should be related using foreign keys in the models.
 5. Assess if common data could be broken out to table(s) to deduplicate data.
 6. Create one table / database model per mentioned method and possibly any other needed table as stated previously.
@@ -35,8 +35,8 @@ This repository contains SQLAchemy models for pypowsybl redy to be used in a dat
 ## Requirements
 * The pandas dataframe index should be the primary key.
 * The scenario_time must be included in an index as this will be queried often but it's not unique in itself.
-* In addition there must be a network_snapshot table and each table must have a snapshot_id refering to this table.
+* In addition there must be a network_snapshot table and each table must have a snapshot_id referring to this table.
 
 ## Note
-* Testing this may be difficult as it'll require a file in CGMES format to be loaded into pypowsybl but maybe something can be done, maybe there are mock data to be found.
-* Testing, if possibly, can be done using sqlite3.
+* Testing this may be difficult as it'll require a file in CGMES format to be loaded into pypowsybl but maybe something can be done, maybe there is mock data to be found.
+* Testing, if possible, can be done using sqlite3.
