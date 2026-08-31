@@ -93,3 +93,44 @@ Build a wheel/sdist:
 ```
 uv build
 ```
+
+## Scope and known gaps
+
+### Undocumented columns found by testing
+
+pypowsybl's own docstrings aren't a complete account of what a DataFrame actually contains. Running the round-trip tests against real fixture data (`03-testing-strategy.md`) turned up columns none of the target methods' docstrings mention:
+
+- `name` is present on almost every table but undocumented in pypowsybl's own docstrings.
+- `bus.fictitious` and a 3-windings-transformer star-point `v`/`angle` — likewise undocumented, only found by testing.
+- CGMES-sourced networks emit dynamic `CGMES.*` extension properties outside the fixed schema; the loader now drops unknown columns instead of crashing (see `src/pypowsybl_models/load.py`).
+
+### `Network` methods not modeled
+
+This schema covers the 20 methods listed in `spec.md`. A full survey of every `get_*` method on `Network` that returns a DataFrame turned up more that aren't modeled here (beyond `get_dangling_lines`/`get_operational_limits`, which are just deprecated aliases of `get_boundary_lines`/`get_loading_limits`, already covered — see `01-api-analysis.md`):
+
+**Equipment types, same category as what's already modeled:**
+- `get_batteries` — battery storage, sibling to generators/loads
+- `get_grounds` — grounding connections
+- `get_hvdc_lines` — HVDC lines (parallel to AC `get_lines`)
+- `get_lcc_converter_stations` / `get_vsc_converter_stations` — HVDC converter stations, referenced by `get_hvdc_lines`
+- `get_tie_lines` — pairs of boundary lines merged into one; already referenced indirectly via `boundary_line.tie_line_id` but not modeled itself
+- `get_boundary_lines_generation` (+ deprecated `get_dangling_lines_generation`) — the equivalent-generator part of a boundary line, split out like tap-changer/shunt sections are
+
+**Directly fills a gap in what's already modeled:**
+- `get_reactive_capability_curve_points` — the `generator` model's `max_q`/`min_q` only apply "if `reactive_limits_kind` is MIN_MAX"; when it's `CURVE` instead, the actual reactive limits live in this table. Same applies to `static_var_compensator`'s reactive limits.
+
+**Limits, same category as `get_loading_limits`:**
+- `get_voltage_angle_limits` — angle-difference limits between two elements
+
+**A newer, separate DC grid model** (distinct from the HVDC-line model above — possibly overlapping/superseding it, worth checking pypowsybl's docs/version history before deciding which one to model):
+- `get_dc_lines`, `get_dc_nodes`, `get_dc_buses`, `get_dc_switches`, `get_dc_grounds`, `get_voltage_source_converters`
+
+**Grouping/control-area concept, no current equivalent:**
+- `get_areas`, `get_areas_voltage_levels`, `get_areas_boundaries`
+
+**Computed/enrichment data:**
+- `get_switch_flows` — switches currently have no `p`/`q`/`i` columns (unlike every other element); this is where that data lives
+- `get_elements_properties`, `get_aliases` — generic key/value metadata and alternate IDs per element
+
+**Generic/derived views** — probably not worth their own table, just unions of tables already modeled:
+- `get_identifiables`, `get_injections`, `get_branches`, `get_terminals`, `get_extensions`/`get_extension`
