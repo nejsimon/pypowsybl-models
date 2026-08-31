@@ -39,7 +39,7 @@ One table (plus any supporting/deduplicated tables) per method:
 
 ## Reference implementation
 
-`pypowsybl` is checked out as a git submodule at `pypowsybl/` (full history, not shallow) — used purely as a reference for reading the actual `Network` API and its git history; it is not the runtime dependency (see `04-project-setup.md`). The methods to model are defined on the `Network` class in `pypowsybl/pypowsybl/network/impl/network.py`.
+`pypowsybl` is checked out as a git submodule at `vendor/pypowsybl/` (full history, not shallow) — used purely as a reference for reading the actual `Network` API and its git history; it is not the runtime dependency (see `04-project-setup.md`). The methods to model are defined on the `Network` class in `vendor/pypowsybl/pypowsybl/network/impl/network.py`.
 
 ## Testing
 

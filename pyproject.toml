@@ -1,0 +1,39 @@
+[project]
+name = "pypowsybl-models"
+version = "0.1.0"
+description = "SQLAlchemy models for pypowsybl Network snapshots"
+readme = "README.md"
+authors = [
+    { name = "Simon Strandman", email = "simon.strandman@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "pandas>=3.0.5",
+    "pypowsybl>=1.16.1",
+    "sqlalchemy>=2.0.52",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.2",
+    "pytest>=9.1.1",
+    "ruff>=0.16.5",
+    "ty>=0.0.75",
+]
+
+[tool.ruff]
+line-length = 120
+extend-exclude = ["vendor"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ty.src]
+exclude = ["vendor"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

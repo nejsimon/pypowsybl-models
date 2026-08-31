@@ -1,6 +1,6 @@
 # 01 — pypowsybl `Network` API analysis
 
-Analysis of the `Network` class in `pypowsybl/pypowsybl/network/impl/network.py` (submodule, full history available), covering the 20 target methods from `spec.md`.
+Analysis of the `Network` class in `vendor/pypowsybl/pypowsybl/network/impl/network.py` (submodule, full history available), covering the 20 target methods from `spec.md`.
 
 ## Corrections to the method list in spec.md
 
@@ -23,7 +23,7 @@ No other target method has been renamed or removed historically; all have existe
 
 ## Column and index inventory
 
-For each target method: the pandas index (→ candidate primary key components) and the columns returned (default + optional/`all_attributes`-only, per the docstrings). Columns already documented in pypowsybl's own docstrings are not repeated verbatim here in full prose — see `pypowsybl/pypowsybl/network/impl/network.py` for exact wording; below is the structural summary needed for schema design.
+For each target method: the pandas index (→ candidate primary key components) and the columns returned (default + optional/`all_attributes`-only, per the docstrings). Columns already documented in pypowsybl's own docstrings are not repeated verbatim here in full prose — see `vendor/pypowsybl/pypowsybl/network/impl/network.py` for exact wording; below is the structural summary needed for schema design.
 
 | Method | pandas index | Notable non-scalar/relational columns |
 |---|---|---|
@@ -64,4 +64,4 @@ For `get_ratio_tap_changers`, `get_phase_tap_changers`, `get_ratio_tap_changer_s
 
 No CGMES file needs to be sourced externally. The `pypowsybl` submodule ships:
 - In-memory network factories requiring no file I/O: `create_eurostag_tutorial_example1_network()`, `create_four_substations_node_breaker_network()` (node-breaker topology, useful for `node`/`bus_breaker_bus_id` columns), `create_micro_grid_be_network()` / `create_micro_grid_nl_network()` (loaded from bundled CGMES data, exercises boundary lines / tie lines).
-- Bundled CGMES fixtures under `pypowsybl/data/`: `CGMES_Full.zip`, `CGMES_Partial.zip`, `MicroGridTestConfiguration_T4_BE_BB_Complete_v2.zip`, `Boundary.zip`.
+- Bundled CGMES fixtures under `vendor/pypowsybl/data/`: `CGMES_Full.zip`, `CGMES_Partial.zip`, `MicroGridTestConfiguration_T4_BE_BB_Complete_v2.zip`, `Boundary.zip`.

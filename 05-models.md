@@ -10,6 +10,8 @@ The concrete, table-by-table plan to implement, applying the conventions from `0
 - **Nullability:** only PK columns and the boolean status flags explicitly marked **not null** below are non-nullable. Every other column is nullable — this covers both pypowsybl's `all_attributes`-only columns (absent unless requested) and default columns that are legitimately `NaN` pre-loadflow (`p`, `q`, `i`, `solved_tap_position`, `solved_section_count`, etc.). Modeling everything else as nullable avoids 100+ redundant annotations for what's already documented per-column in pypowsybl's own docstrings.
 - Capture the *full* attribute set (i.e. what `all_attributes=True` returns), not just pypowsybl's default subset — a persisted snapshot should be replayable without having to know which optional columns a future query will need.
 - Enum-like string columns from pypowsybl (`energy_source`, `reactive_limits_kind`, `regulation_mode`, `type`, `kind`, `model_type`, `topology_kind`, `element_type`, limit `type`) are stored as plain `String`, not a DB-level enum — pypowsybl can add new values across versions (`01-api-analysis.md`), and a DB enum would need a migration each time.
+- Every table whose primary key is a bare element `id` (i.e. every table below except the two shunt-section tables, the four tap-changer tables, and `loading_limit`) also has a `name` — String, nullable. This was missed in the original docstring-driven inventory in `01-api-analysis.md`: `name` is injected generically by pypowsybl's underlying element accessor rather than documented in each method's own "Notes" section, and only surfaced once `all_attributes=True` round-trip tests were run against real fixture data (`03-testing-strategy.md`) — a concrete example of why the round-trip tests exist, not just the docstring reading. Two more columns were found the same way and are called out individually below: `bus.fictitious` and `three_windings_transformer.v`/`angle` (the star-point voltage state) are both genuinely absent from pypowsybl's own docstrings.
+- CGMES-sourced networks (e.g. `create_micro_grid_be_network()`) additionally return dynamic `CGMES.*`/`cgmes.*` columns with `all_attributes=True` (e.g. `CGMES.regionId`, `cgmes.terminalsign`) — per-element extension properties from the source CGMES file, not part of pypowsybl's fixed per-method schema. These are out of scope for this schema (they're effectively arbitrary key/value data, closer to `get_elements_properties` than to a `Network.get_*()` accessor) and the loader (`load.py`) drops any DataFrame column that isn't one of a table's own attributes rather than failing on them.
 
 ## `network_snapshot`
 
@@ -25,6 +27,7 @@ The concrete, table-by-table plan to implement, applying the conventions from `0
 ## `voltage_level`
 
 - `id` — String, **PK**
+- `name` — String
 - `substation_id` — String, FK → `substation.id`
 - `nominal_v`, `high_voltage_limit`, `low_voltage_limit` — Float
 - `fictitious` — Boolean
@@ -33,13 +36,16 @@ The concrete, table-by-table plan to implement, applying the conventions from `0
 ## `bus`
 
 - `id` — String, **PK** (bus-view ID)
+- `name` — String
 - `voltage_level_id` — String, FK → `voltage_level.id`
 - `v_mag`, `v_angle`, `fictitious_p0`, `fictitious_q0` — Float
 - `connected_component`, `synchronous_component` — Integer
+- `fictitious` — Boolean (undocumented, see the blanket rules above)
 
 ## `busbar_section`
 
 - `id` — String, **PK**
+- `name` — String
 - `voltage_level_id` — String, FK → `voltage_level.id`
 - `bus_id` — String, FK → `bus.id`
 - `bus_breaker_bus_id`, `node` — String
@@ -49,6 +55,7 @@ The concrete, table-by-table plan to implement, applying the conventions from `0
 ## `generator`
 
 - `id` — String, **PK**
+- `name` — String
 - `voltage_level_id` — String, FK → `voltage_level.id`
 - `bus_id`, `regulated_bus_id` — String, FK → `bus.id`
 - `bus_breaker_bus_id`, `regulated_bus_breaker_bus_id`, `node` — String
@@ -60,6 +67,7 @@ The concrete, table-by-table plan to implement, applying the conventions from `0
 ## `load`
 
 - `id` — String, **PK**
+- `name` — String
 - `voltage_level_id` — String, FK → `voltage_level.id`
 - `bus_id` — String, FK → `bus.id`
 - `bus_breaker_bus_id`, `node` — String
@@ -70,6 +78,7 @@ The concrete, table-by-table plan to implement, applying the conventions from `0
 ## `line`
 
 - `id` — String, **PK**
+- `name` — String
 - `voltage_level1_id`, `voltage_level2_id` — String, FK → `voltage_level.id`
 - `bus1_id`, `bus2_id` — String, FK → `bus.id`
 - `bus_breaker_bus1_id`, `bus_breaker_bus2_id`, `node1`, `node2`, `selected_limits_group_1`, `selected_limits_group_2` — String
@@ -79,6 +88,7 @@ The concrete, table-by-table plan to implement, applying the conventions from `0
 ## `two_windings_transformer`
 
 - `id` — String, **PK**
+- `name` — String
 - `voltage_level1_id`, `voltage_level2_id` — String, FK → `voltage_level.id`
 - `bus1_id`, `bus2_id` — String, FK → `bus.id`
 - `bus_breaker_bus1_id`, `bus_breaker_bus2_id`, `node1`, `node2`, `selected_limits_group_1`, `selected_limits_group_2` — String
@@ -89,8 +99,10 @@ The concrete, table-by-table plan to implement, applying the conventions from `0
 ## `three_windings_transformer`
 
 - `id` — String, **PK**
+- `name` — String
 - `rated_u0` — Float
 - `fictitious` — Boolean
+- `v`, `angle` — Float (the transformer's star/neutral-point voltage state, undocumented — see the blanket rules above)
 - For each leg `n` in `{1, 2, 3}`:
   - `voltage_leveln_id` — String, FK → `voltage_level.id`
   - `busn_id` — String, FK → `bus.id`
@@ -103,6 +115,7 @@ The concrete, table-by-table plan to implement, applying the conventions from `0
 ## `switch`
 
 - `id` — String, **PK**
+- `name` — String
 - `voltage_level_id` — String, FK → `voltage_level.id`
 - `bus_breaker_bus1_id`, `bus_breaker_bus2_id`, `node1`, `node2` — String
 - `kind` — String
@@ -111,6 +124,7 @@ The concrete, table-by-table plan to implement, applying the conventions from `0
 ## `shunt_compensator`
 
 - `id` — String, **PK**
+- `name` — String
 - `voltage_level_id` — String, FK → `voltage_level.id`
 - `bus_id` — String, FK → `bus.id`
 - `bus_breaker_bus_id`, `node` — String
@@ -135,6 +149,7 @@ The concrete, table-by-table plan to implement, applying the conventions from `0
 ## `boundary_line`
 
 - `id` — String, **PK**
+- `name` — String
 - `voltage_level_id` — String, FK → `voltage_level.id`
 - `bus_id` — String, FK → `bus.id`
 - `bus_breaker_bus_id`, `node`, `pairing_key`, `ucte_xnode_code` — String
@@ -145,6 +160,7 @@ The concrete, table-by-table plan to implement, applying the conventions from `0
 ## `static_var_compensator`
 
 - `id` — String, **PK**
+- `name` — String
 - `voltage_level_id` — String, FK → `voltage_level.id`
 - `bus_id`, `regulated_bus_id` — String, FK → `bus.id`
 - `bus_breaker_bus_id`, `regulated_bus_breaker_bus_id`, `node` — String

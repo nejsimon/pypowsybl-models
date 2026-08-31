@@ -4,7 +4,7 @@ Standard Python project conventions per the user's global instructions, applied 
 
 ## Dependency on pypowsybl: submodule is reference-only
 
-The `pypowsybl/` submodule (added in this repo's git history) contains C++ (`cpp/`) and Java (`java/`) sources and needs `cmake`/`pybind11`/a JDK to build from source (per its own `requirements.txt`/`setup.cfg`). It is **not** meant to be installed as the runtime dependency — it exists so this repo's models can be checked against the actual `Network` API and its history (`01-api-analysis.md`).
+The `vendor/pypowsybl/` submodule (added in this repo's git history) contains C++ (`cpp/`) and Java (`java/`) sources and needs `cmake`/`pybind11`/a JDK to build from source (per its own `requirements.txt`/`setup.cfg`). It is **not** meant to be installed as the runtime dependency — it exists so this repo's models can be checked against the actual `Network` API and its history (`01-api-analysis.md`).
 
 The actual runtime dependency is the published `pypowsybl` package from PyPI (requires Python >=3.10, matching the submodule's `setup.cfg`). Test fixtures (`03-testing-strategy.md`) use the *installed* package's factory functions — the submodule is only consulted for source-reading, not imported.
 
